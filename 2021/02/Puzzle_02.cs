@@ -41,5 +41,7 @@ foreach(var command in commands)
 
 var product = x * y;
 var productWithAim = xWithAim * yWithAim;
+
+// Print results
 Console.WriteLine($"Resulting diving position is          ({x}, {y}).               Product is {product}.");
 Console.WriteLine($"Resulting diving position with aim is ({xWithAim}, {yWithAim}). Product is {productWithAim}.");

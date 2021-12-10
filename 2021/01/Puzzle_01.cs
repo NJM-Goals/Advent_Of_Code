@@ -1,9 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
-
-Console.WriteLine(args);
-
-string filename = args[0].ToString();
+﻿string filename = args[0];
 
 var lines = (new Core.FileHandler(filename)).ReadLines();
 
@@ -49,7 +44,6 @@ foreach (var nr in numbers)
         continue;
     }
 
-    // calc sum
     sum = nr + preNr + prePreNr;
 
     // count greater sums than preceding sum
