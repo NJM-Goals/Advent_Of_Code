@@ -5,18 +5,7 @@ Console.WriteLine(args);
 
 string filename = args[0].ToString();
 
-var currDir = Environment.CurrentDirectory;
-Console.WriteLine(currDir);
-var path = Path.Combine(new string[] { currDir, "..", "..", "..", filename });
-var file = File.OpenText(path);
-
-var line = file.ReadLine();
-var lines = new List<string>();
-while (line != null)
-{
-    lines.Add(line);
-    line = file.ReadLine();
-}
+var lines = (new Core.FileHandler(filename)).ReadLines();
 
 // convert lines to numbers
 var numbers = new List<int>();
