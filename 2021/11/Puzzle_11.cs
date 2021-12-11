@@ -3,6 +3,8 @@
 var filename = args[0];
 var lines = (new Core.FileHandler(filename)).ReadLines();
 
-Puzzle11_ObjectOriented.Start(lines, nrOctopuses: 100, steps: 100);
+var puzzleRes = Puzzle11_ObjectOriented.Start(lines, nrOctopuses: 100, steps: 100);
+puzzleRes.ConsoleOut();
 
-Puzzle11_ObjectOriented.Start(lines, nrOctopuses: 100, steps: -1);
+puzzleRes = Puzzle11_ObjectOriented.Start(lines, nrOctopuses: 100, steps: -1);
+puzzleRes.ConsoleOut();

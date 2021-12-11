@@ -16,12 +16,19 @@ namespace _11
         public int NrFlashesOfStep { get; private set; }
         public List<int> StepsOfAllOctiFlashing { get; private set; }
 
-        internal static void Start(in IReadOnlyList<string> lines, in int nrOctopuses, in int steps = -1)
+        internal static Puzzle11Result Start(in IReadOnlyList<string> lines, in int nrOctopuses, in int steps = -1)
         {
-            var puzzle = new Puzzle11_ObjectOriented(lines, nrOctopuses, steps);
+            var puzzle = new Puzzle11_ObjectOriented(lines, nrOctopuses);
+
+            puzzle.Run(steps);
+
+            return new Puzzle11Result(
+                puzzle.TotalFlashes,
+                puzzle.StepsOfAllOctiFlashing
+            );
         }
 
-        public Puzzle11_ObjectOriented(IReadOnlyList<string> lines, in int nrOctopuses, in int steps)
+        public Puzzle11_ObjectOriented(IReadOnlyList<string> lines, in int nrOctopuses)
         {
             Lines = lines;
             NrOctopuses = nrOctopuses;
@@ -47,9 +54,16 @@ namespace _11
 
             // listen for all flashes
             Octi.ForEach(oct => oct.Flash += AnyOctFlashes);
+        }
 
+        /// <summary>
+        /// Runs all the steps for the octopuses increasing energy and flashing.
+        /// </summary>
+        private void Run(in int steps)
+        {
+            int givenSteps = steps;
 
-            // step:
+            // One step:
             //  1. Increase energy of each octopus
             //  2. Process flashes
             //  3. Reset energies of octopuses
@@ -62,38 +76,28 @@ namespace _11
                 Octi.ForEach(oct => oct.Reset());
                 EndStep(i, out bool allOctopusesFlashed);
 
-                if (allOctopusesFlashed)
-                {
-                    break;
-                }
+                if (allOctopusesFlashed && givenSteps == -1)
+                    break;  // we want to detect only the step, when all octopuses flash
             }
-
-
-            Console.WriteLine($"Total amount of octopus' flashes: {TotalFlashes}");
-
-            Console.WriteLine($"Steps of all octopuses flashing:");
-            StepsOfAllOctiFlashing.ForEach(step => Console.WriteLine($"\t#{step}"));
         }
 
         private void EndStep(in int step, out bool allOctopusesFlashed)
         {
             if (NrFlashesOfStep == NrOctopuses + 1)
             {
-                Console.WriteLine($"All octopuses have flashed this step. Wooooh! It's sooo bright.\n\t{nameof(step)} = {step}, {nameof(NrFlashesOfStep)} = {NrFlashesOfStep}");
+                Debug.WriteLine($"All octopuses have flashed this step. Wooooh! It's sooo bright.\n\t{nameof(step)} = {step}, {nameof(NrFlashesOfStep)} = {NrFlashesOfStep}");
                 StepsOfAllOctiFlashing.Add(step);
                 allOctopusesFlashed = true;
             }
             else if (NrFlashesOfStep > NrOctopuses + 1)
             {
-                Console.WriteLine($"Arrrg, too bright! This step had more flashes than octopuses.\n\t{nameof(step)} = {step}, {nameof(NrFlashesOfStep)} = {NrFlashesOfStep}");
+                Debug.WriteLine($"Arrrg, too bright! This step had more flashes than octopuses.\n\t{nameof(step)} = {step}, {nameof(NrFlashesOfStep)} = {NrFlashesOfStep}");
                 allOctopusesFlashed = true;
             }
             else
             {
                 allOctopusesFlashed = false;
             }
-
-            Debug.WriteLine($"Nr flashes this step ({step}): {NrFlashesOfStep}");
         }
 
         private void BeginStep()
