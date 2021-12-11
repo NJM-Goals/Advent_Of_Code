@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "11 with example input from rules": {
+      "commandName": "Project",
+      "commandLineArgs": "puzzleInputExample.txt"
+    },
+    "11 with my input": {
+      "commandName": "Project",
+      "commandLineArgs": "puzzleInput.txt"
+    }
+  }
+}
