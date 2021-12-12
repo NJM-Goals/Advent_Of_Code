@@ -83,13 +83,13 @@ namespace _11
 
         private void EndStep(in int step, out bool allOctopusesFlashed)
         {
-            if (NrFlashesOfStep == NrOctopuses + 1)
+            if (NrFlashesOfStep == NrOctopuses)
             {
                 Debug.WriteLine($"All octopuses have flashed this step. Wooooh! It's sooo bright.\n\t{nameof(step)} = {step}, {nameof(NrFlashesOfStep)} = {NrFlashesOfStep}");
                 StepsOfAllOctiFlashing.Add(step);
                 allOctopusesFlashed = true;
             }
-            else if (NrFlashesOfStep > NrOctopuses + 1)
+            else if (NrFlashesOfStep > NrOctopuses)
             {
                 Debug.WriteLine($"Arrrg, too bright! This step had more flashes than octopuses.\n\t{nameof(step)} = {step}, {nameof(NrFlashesOfStep)} = {NrFlashesOfStep}");
                 allOctopusesFlashed = true;
@@ -102,7 +102,7 @@ namespace _11
 
         private void BeginStep()
         {
-            NrFlashesOfStep = 1;
+            NrFlashesOfStep = 0;
         }
 
         private void AnyOctFlashes()
@@ -129,7 +129,6 @@ namespace _11
 
 
             // determine neighbors
-            //var octiWithNeighbor = new Dictionary<Octopus, List<Octopus>>();
             for (int i = 0; i < Octi.Count; ++i)
             {
                 int row = i / octiInRowAndCol;
@@ -147,14 +146,14 @@ namespace _11
                 bool hasBottomRight = hasBottom && hasRight;
                 bool hasBottomLeft = hasBottom && hasLeft;
 
-                bool[] hasNeighbors = new bool[] { hasTopLeft, hasTop, hasTopRight, hasRight, hasBottomRight, hasBottom, hasBottomLeft, hasLeft };
-                if (hasNeighbors.Length != neighborOffsets.Length)
+                bool[] hasNeighbor = new bool[] { hasTopLeft, hasTop, hasTopRight, hasRight, hasBottomRight, hasBottom, hasBottomLeft, hasLeft };  // TODO reuse array instead of always new
+                if (hasNeighbor.Length != neighborOffsets.Length)
                     throw new InvalidOperationException();
 
-                // process neighbours clockwise from top-left to left
+                // process neighbors clockwise from top-left to left
                 for (int j = 0; j < nrNeighbors; j++)
                 {
-                    if (hasNeighbors[j])
+                    if (hasNeighbor[j])
                     {
                         int offset = neighborOffsets[j];
                         int neighborIdx = i + offset;
@@ -164,7 +163,7 @@ namespace _11
                         var neighbor = Octi[neighborIdx];
 
                         // register the neighbor for a flash of current octopus
-                        Octi[i].Flash += () => neighbor.IncreaseEnergyThenFlash();
+                        Octi[i].Flash += neighbor.IncreaseEnergyThenFlash;  // TODO deregister
                     }
                 }
             }
