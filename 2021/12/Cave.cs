@@ -26,20 +26,13 @@ namespace _12
         public string Name = string.Empty;
 
         public bool IsEnd => Name == "end";
+        public bool IsStart => Name == "start";
 
         internal void Visit(Path path)
         {
-            // make sure no small cave is visited more than once
-            foreach (var cave in path.Caves)
+            if(!IsVisitable(this, path))  // check, if cave may be visited
             {
-                bool isSmallCave = cave.Name.All(char.IsLower);
-                if (isSmallCave && cave.Name == Name)
-                {
-                    // this cave is revisited, which is not allowed
-                    Debug.WriteLine($"DeadPath: {path}");
-
-                    return;
-                }
+                return;
             }
 
             path.Add(this);
@@ -47,7 +40,6 @@ namespace _12
             if (IsEnd)
             {
                 AllPathsToEnd.Add(path);
-                Debug.WriteLine($"End Path: {path}");
                 return;
             }
             else if (IsVisitable())
@@ -61,6 +53,77 @@ namespace _12
                     neighborCopy.Visit(newPath);
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks, if the <paramref name="caveToCheck"/> can be visited on base of
+        /// the <paramref name="path"/> so far.
+        /// </summary>
+        private static bool IsVisitable(Cave caveToCheck, Path path)
+        {
+            if (!caveToCheck.IsSmall)
+                return true;
+
+            Dictionary<string, int> smallCaveCount = CountSmallCaves(path);
+            bool hasOneSmallCaveTwice = HasOneCaveTwice(smallCaveCount);
+
+            if (!hasOneSmallCaveTwice)
+            {
+                return true;
+            }
+            else
+            {
+                bool caveIsInPath = IsInPath(caveToCheck, path);
+                if (caveIsInPath)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsInPath(Cave caveToCheck, Path path)
+        {
+            foreach (var caveInPath in path.Caves)
+            {
+                if (caveInPath.Name == caveToCheck.Name)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool HasOneCaveTwice(Dictionary<string, int> smallCaveCount)
+        {
+            foreach (var caveCount in smallCaveCount)
+            {
+                if (caveCount.Value > 1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static Dictionary<string, int> CountSmallCaves(Path path)
+        {
+            var smallCaveCount = new Dictionary<string, int>();
+            foreach (var cave in path.Caves)
+            {
+                if (cave.IsSmall && !cave.IsEnd && !cave.IsStart)
+                {
+                    if (smallCaveCount.ContainsKey(cave.Name))
+                        smallCaveCount[cave.Name]++;
+                    else
+                        smallCaveCount.Add(cave.Name, 1);
+                }
+            }
+
+            return smallCaveCount;
         }
 
         public abstract Cave Copy();
@@ -77,5 +140,7 @@ namespace _12
                 to.Neighbors.Add(neighbor);
             }
         }
+
+        private bool IsSmall => Name.All(char.IsLower);
     }
 }

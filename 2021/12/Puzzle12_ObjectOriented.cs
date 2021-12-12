@@ -65,14 +65,16 @@ internal class Puzzle12_ObjectOriented
 
     public void Run()
     {
+        Cave.AllPathsToEnd = new List<Path>();
+
         var path = new Path();
         StartCave.Visit(path);
 
-        var foundPaths = Cave.AllPathsToEnd.Count;
-        OutPaths();
+        var nrFoundPaths = Cave.AllPathsToEnd.Count;
+        //OutPaths();
 
-        PuzzleResult.NrPaths = foundPaths;
-        Cave.AllPathsToEnd.Clear();
+        PuzzleResult.AllPathsToEnd = Cave.AllPathsToEnd;
+        PuzzleResult.NrPaths = nrFoundPaths;
     }
 
     private static void OutPaths()

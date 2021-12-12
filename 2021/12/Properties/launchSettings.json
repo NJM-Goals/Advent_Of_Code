@@ -2,7 +2,7 @@
   "profiles": {
     "12": {
       "commandName": "Project",
-      "commandLineArgs": "puzzleInputExample0.txt puzzleInputExample1.txt puzzleInputExample2.txt puzzleInput.txt"
+      "commandLineArgs": "puzzleInputExample0.txt puzzleInputExample1.txt puzzleInputExample2.txt puzzleInput.txt pathsExample0.txt"
     }
   }
 }
