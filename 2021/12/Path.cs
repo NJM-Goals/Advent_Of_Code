@@ -2,9 +2,10 @@
 {
     internal class Path
     {
+        /// <summary>
+        /// All caves in this path from start to end cave.
+        /// </summary>
         public List<Cave> Caves { get; set; } = new List<Cave>();
-
-        //public bool IsEndReached { get; set; } = false;
 
         public Path()
         { }
@@ -28,7 +29,9 @@
             string pathStr = string.Empty;
             foreach (var cave in Caves)
             {
-                pathStr += cave.ToString() + ",";
+                pathStr += cave.ToString();
+                if (cave != Caves.Last())
+                    pathStr += ",";
             }
 
             return pathStr;

@@ -2,9 +2,12 @@
 
 internal class Puzzle12_ObjectOriented
 {
+    /// <summary>
+    /// All caves.
+    /// </summary>
     public Dictionary<string, Cave> Caves { get; }
     public Cave StartCave { get; private set; }
-    public Puzzle12Result PuzzleResult { get; private set; }
+    public Puzzle12Result PuzzleResult { get; private set; } = new Puzzle12Result();
 
     internal static Puzzle12Result Start(in List<string> lines)
     {
@@ -15,7 +18,6 @@ internal class Puzzle12_ObjectOriented
         return puzzle.PuzzleResult;
     }
 
-
     public Puzzle12_ObjectOriented(List<string> lines)
     {
         Caves = new Dictionary<string, Cave>();
@@ -24,16 +26,41 @@ internal class Puzzle12_ObjectOriented
         foreach (var line in lines)
         {
             var cavesLine = CreateCaves(line);
-            foreach (var cavesOfLine in cavesLine)
-                Caves.TryAdd(cavesOfLine.Key, cavesOfLine.Value);
+            var caveLine0 = cavesLine.First();
+            var caveLine1 = cavesLine.Last();
+
+
+            // create or get cave0
+            var cave0 = caveLine0.Value;
+            bool caveAdded = Caves.TryAdd(caveLine0.Key, cave0);
+            if (!caveAdded)
+            {
+                bool gotCave = Caves.TryGetValue(caveLine0.Key, out cave0);
+                if (!gotCave)
+                    throw new InvalidOperationException();
+            }
+
+
+            // create or get cave1
+            var cave1 = caveLine1.Value;
+            caveAdded = Caves.TryAdd(caveLine1.Key, cave1);
+            if (!caveAdded)
+            {
+                bool gotCave = Caves.TryGetValue(caveLine1.Key, out cave1);
+                if (!gotCave)
+                    throw new InvalidOperationException();
+            }
 
 
             // Add neighboring caves to each other
-            var cave0 = cavesLine.First();
-            var cave1 = cavesLine.Last();
-            Caves[cave0.Key].AddNeighbor(cave1.Value);
-            Caves[cave1.Key].AddNeighbor(cave0.Value);
+            if (cave0 is null || cave1 is null || cave0 == cave1)
+                throw new InvalidOperationException();
+
+            cave0.AddNeighbor(cave1);
+            cave1.AddNeighbor(cave0);
         }
+
+        StartCave = Caves["start"];
     }
 
     public void Run()
@@ -41,13 +68,22 @@ internal class Puzzle12_ObjectOriented
         var path = new Path();
         StartCave.Visit(path);
 
-        var foundPaths = Cave.AllPaths.Count;
+        var foundPaths = Cave.AllPathsToEnd.Count;
+        OutPaths();
 
-        PuzzleResult = new Puzzle12Result();
         PuzzleResult.NrPaths = foundPaths;
+        Cave.AllPathsToEnd.Clear();
     }
 
-    private Dictionary<string, Cave> CreateCaves(string line)
+    private static void OutPaths()
+    {
+        foreach (var path in Cave.AllPathsToEnd)
+        {
+            Console.WriteLine(path);
+        }
+    }
+
+    private static Dictionary<string, Cave> CreateCaves(string line)
     {
         var lineCaves = line.Split('-');
         var caveStr0 = lineCaves[0];
@@ -62,21 +98,6 @@ internal class Puzzle12_ObjectOriented
 
         isSmallCave = caveStr1.All(char.IsLower);
         caves.Add(caveStr1, isSmallCave ? new SmallCave(caveStr1) : new BigCave(caveStr1));
-
-
-        // store starting cave
-        if (StartCave == null)
-        {
-            foreach (var cave in caves)
-            {
-                if (cave.Key == "start")
-                {
-                    StartCave = cave.Value;
-                    break;
-                }
-            }
-        }
-
 
         return caves;
     }

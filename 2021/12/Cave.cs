@@ -1,4 +1,6 @@
-﻿namespace _12
+﻿using System.Diagnostics;
+
+namespace _12
 {
     internal abstract class Cave
     {
@@ -7,7 +9,7 @@
         /// </summary>
         public HashSet<Cave> Neighbors { get; set; } = new HashSet<Cave>();
 
-        public static List<Path> AllPaths = new List<Path>();
+        public static List<Path> AllPathsToEnd = new();
 
         /// <summary>
         /// A <see cref="SmallCave"/> can be visited only once during one path.
@@ -25,13 +27,27 @@
 
         public bool IsEnd => Name == "end";
 
-        internal /*virtual*/ void Visit(Path path)
+        internal void Visit(Path path)
         {
+            // make sure no small cave is visited more than once
+            foreach (var cave in path.Caves)
+            {
+                bool isSmallCave = cave.Name.All(char.IsLower);
+                if (isSmallCave && cave.Name == Name)
+                {
+                    // this cave is revisited, which is not allowed
+                    Debug.WriteLine($"DeadPath: {path}");
+
+                    return;
+                }
+            }
+
             path.Add(this);
 
             if (IsEnd)
             {
-                AllPaths.Add(path);
+                AllPathsToEnd.Add(path);
+                Debug.WriteLine($"End Path: {path}");
                 return;
             }
             else if (IsVisitable())
@@ -41,13 +57,9 @@
                 {
                     var newPath = new Path(path);
 
-                    neighbor.Visit(newPath);
+                    var neighborCopy = neighbor.Copy();
+                    neighborCopy.Visit(newPath);
                 }
-            }
-            else  // dead end
-            {
-                // don't add path to all paths
-                return;
             }
         }
 
@@ -65,13 +77,5 @@
                 to.Neighbors.Add(neighbor);
             }
         }
-
-        //protected static void CopyNeighbors(Cave from, Cave to)
-        //{
-        //    foreach (var neighbor in from.Neighbors)
-        //    {
-        //        to.Neighbors.Add(neighbor.Copy());
-        //    }
-        //}
     }
 }

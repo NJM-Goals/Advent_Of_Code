@@ -17,18 +17,12 @@
             return !HasBeenVisited;
         }
 
-        //internal override void Visit(Path path)
-        //{
-        //    base.Visit(path);
-        //    //HasBeenVisited = true;
-        //}
-
         public override Cave Copy()
         {
             var newCave = new SmallCave(Name);
             if (HasBeenVisited)
             {
-                HasBeenVisited = true;
+                newCave.HasBeenVisited = true;
             }
 
             CopyNeighborReferences(this, newCave);

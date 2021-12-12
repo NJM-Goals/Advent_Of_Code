@@ -24,5 +24,6 @@ string messageAssertFail = "Failed to find correct amount of paths.";
 
 {
     var lines = (new FileHandler(args[3])).ReadLines();
+    var puzzleResultExample2 = Puzzle12_ObjectOriented.Start(lines);
 }
 
