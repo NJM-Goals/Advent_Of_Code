@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "12": {
+      "commandName": "Project",
+      "commandLineArgs": "puzzleInputExample0.txt puzzleInputExample1.txt puzzleInputExample2.txt puzzleInputExample.txt"
+    }
+  }
+}
