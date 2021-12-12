@@ -1,0 +1,1 @@
+﻿[AoC 2021 12](https://adventofcode.com/2021/day/12)
