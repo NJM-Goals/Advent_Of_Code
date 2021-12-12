@@ -2,35 +2,54 @@
 
 namespace _11
 {
+    /// <summary>
+    /// Puzzle 11 of AoC 2021. Uses an object oriented approach to solve the puzzle.<br/>
+    /// The puzzle contains flashing octopuses that propagate their flash to neighboring octopuses.
+    /// </summary>
     internal class Puzzle11_ObjectOriented
     {
+        /// <summary>
+        /// The maximum energy for an octopus to flash. Can be used for intializing octopuses.
+        /// </summary>
         const int MaxEnergyOfOctopus = 9;
 
-        public IReadOnlyList<string> Lines { get; }
-        public int NrOctopuses { get; }
         /// <summary>
-        /// All octopuses.
+        /// A maximum of steps to prevent endless runs, if the algorithm is run to search for the step of all
+        /// octopuses flashing.
+        /// </summary>
+        const int MaxSteps = 100000;
+
+        private int NrOctopuses { get; }
+
+        /// <summary>
+        /// All octopuses.<br/>
+        /// jo: I used a one-dimensional list here, because I knew it like this from the
+        /// A-Star algorithm. Is it also faster like this than with a two-dimenionsal array (or list)?<br/>
+        /// TODO: Try it with a two-dimensional array.
         /// </summary>
         private List<Octopus> Octi { get; set; }
-        public int TotalFlashes { get; private set; }
-        public int NrFlashesOfStep { get; private set; }
-        public List<int> StepsOfAllOctiFlashing { get; private set; }
 
-        internal static Puzzle11Result Start(in IReadOnlyList<string> lines, in int nrOctopuses, in int steps = -1)
+        /// <summary>
+        /// Total amount of flashes of all octopuses.
+        /// </summary>
+        private int TotalFlashes { get; set; }
+
+        /// <summary>
+        /// Amount of flashes in one step.
+        /// </summary>
+        private int NrFlashesOfStep { get; set; }
+
+        /// <summary>
+        /// The indices of the steps, where all octopuses flashed simultaneously.
+        /// </summary>
+        private List<int> StepsOfAllOctiFlashing { get; set; }
+
+        /// <summary>
+        /// Parses the <paramref name="lines"/> to create <see cref="Octopus"/>es.<br/>
+        /// Call <see cref="Start"/> afterwards to process the flashing of octopuses.
+        /// </summary>
+        private Puzzle11_ObjectOriented(IReadOnlyList<string> lines, in int nrOctopuses)
         {
-            var puzzle = new Puzzle11_ObjectOriented(lines, nrOctopuses);
-
-            puzzle.Run(steps);
-
-            return new Puzzle11Result(
-                puzzle.TotalFlashes,
-                puzzle.StepsOfAllOctiFlashing
-            );
-        }
-
-        public Puzzle11_ObjectOriented(IReadOnlyList<string> lines, in int nrOctopuses)
-        {
-            Lines = lines;
             NrOctopuses = nrOctopuses;
             var octi = new List<Octopus>(nrOctopuses);
 
@@ -57,6 +76,27 @@ namespace _11
         }
 
         /// <summary>
+        /// Starts the algorithm.
+        /// </summary>
+        /// <param name="lines">The lines, that are parsed for the initial states of the octopuses.</param>
+        /// <param name="nrOctopuses">Amount of octopuses to create.</param>
+        /// <param name="steps">
+        /// Amount of steps to run the algorithm.
+        /// A value of -1 executes the algorithm until all octopuses flash. But there is an internal limit to prevent long runs: <see cref="MaxSteps"/>.</param>
+        /// <returns>The result to solve this puzzle.</returns>
+        internal static Puzzle11Result Start(in IReadOnlyList<string> lines, in int nrOctopuses, in int steps = -1)
+        {
+            var puzzle = new Puzzle11_ObjectOriented(lines, nrOctopuses);
+
+            puzzle.Run(steps);
+
+            return new Puzzle11Result(
+                puzzle.TotalFlashes,
+                puzzle.StepsOfAllOctiFlashing
+            );
+        }
+
+        /// <summary>
         /// Runs all the steps for the octopuses increasing energy and flashing.
         /// </summary>
         private void Run(in int steps)
@@ -67,7 +107,7 @@ namespace _11
             //  1. Increase energy of each octopus
             //  2. Process flashes
             //  3. Reset energies of octopuses
-            int maxSteps = steps == -1 ? 100000 : steps;
+            int maxSteps = steps == -1 ? MaxSteps : steps;
             for (int i = 1; i <= maxSteps; ++i)
             {
                 BeginStep();
@@ -81,6 +121,17 @@ namespace _11
             }
         }
 
+        /// <summary>
+        /// Must be called at begin/start of each step.
+        /// </summary>
+        private void BeginStep()
+        {
+            NrFlashesOfStep = 0;
+        }
+
+        /// <summary>
+        /// Must be called at end of each step.
+        /// </summary>
         private void EndStep(in int step, out bool allOctopusesFlashed)
         {
             if (NrFlashesOfStep == NrOctopuses)
@@ -100,17 +151,16 @@ namespace _11
             }
         }
 
-        private void BeginStep()
-        {
-            NrFlashesOfStep = 0;
-        }
-
         private void AnyOctFlashes()
         {
             TotalFlashes++;
             NrFlashesOfStep++;
         }
 
+        /// <summary>
+        /// Determines all neighboring octopuses of each octopus.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         private void DetermineNeighbors()
         {
             const int octiInRowAndCol = 10;
