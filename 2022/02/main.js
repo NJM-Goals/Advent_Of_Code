@@ -1,6 +1,6 @@
 var fs = require('fs')
 
-console.log("Advent of Code 2022 Day 1 - Copyright NJM-Goals")
+console.log("Advent of Code 2022 Day 2 - Copyright NJM-Goals")
 
 
 
