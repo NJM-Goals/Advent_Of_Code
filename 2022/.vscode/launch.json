@@ -7,11 +7,11 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch via Yarn",
-            "runtimeExecutable": "yarn",
-            "cwd": "${workspaceFolder}",
-            "runtimeArgs": ["start:debug"],
-            "port": 5858,
+            "name": "07",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/07/main.js"
         }
     ]
 }
