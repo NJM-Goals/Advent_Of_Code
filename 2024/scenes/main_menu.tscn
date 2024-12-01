@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bpmoimgh0vl6i"]
+
+[ext_resource type="Script" path="res://scenes/main_menu.gd" id="1_l7quq"]
+[ext_resource type="Script" path="res://scenes/puzzle_01.gd" id="3_1tp62"]
+
+[node name="MainMenu" type="Node2D"]
+script = ExtResource("1_l7quq")
+
+[node name="btn_01" type="Button" parent="."]
+offset_right = 439.0
+offset_bottom = 159.0
+text = "Puzzle 01"
+
+[node name="Puzzle_01" type="Node" parent="."]
+script = ExtResource("3_1tp62")
