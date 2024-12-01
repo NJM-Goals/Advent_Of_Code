@@ -1,4 +1,5 @@
-var fs = require('fs')
+var fs = require('fs');
+const { uptime } = require('process');
 
 console.log("Advent of Code 2022 Day 7 - Copyright NJM-Goals")
 
@@ -9,87 +10,102 @@ function run(input) {
         const lines = input.split("\n");
 
         const is_command = (line) => line[0] === "$";
-        const is_dir
+        const is_dir = (line) => line[0] === "d";
+        const get_dir = (line) => line.slice().split(' ')[1]
+        const is_file = (line) => !isNaN(parseInt(line[0]))
+        const get_file = (line) => line.slice().split(' ')
 
-        const chars = lines[0].split('');
 
-        let a = -3;
-        let b = -2;
-        let c = -1;
+        const is_cd = (line) => is_command(line) && line[2] === "c"
+        const get_cd_dir = (line) => line.split(" ")[2];
+        const is_ls = (line) => is_command(line) && line[2] === "l"
 
-        let first_marker = -1;
-        for (let i = 3; i < chars.length; i++) {
-            const c0 = chars[i + a]
-            const c1 = chars[i + b]
-            const c2 = chars[i + c]
-            const c3 = chars[i]
-            if (
-                c0 !== c1 && c0 !== c2 && c0 !== c3 &&
-                c1 !== c2 && c1 !== c3 &&
-                c2 !== c3
-            ) {
-                first_marker = i + 1;
-                break;
+
+        let path = [];
+        const tree = {};
+        path.push("/")
+
+        let line_count = 0
+
+
+        const inspect_dir = (lines, dir_name, parent) => {
+            // console.log("parent", parent)
+            if (parent == null) {
+                console.error("parent is null")
+                return;
             }
-        }
+
+            for (let idx = 0; idx < lines.length; idx++) {
+                const l = lines[idx];
+
+                ++line_count;
+
+                console.log(`current dir: ${dir_name}\n` , parent)
+                console.log("> ", l)
+
+                if (is_cd(l) && l.slice().split(' ')[2] === "..") { 
+                    console.log(' directory up ^^^^ 0')
+                    path.pop()
+                    return
+                }
 
 
-        // Part 2
-        let start_of_msg = -1;
-        const distinct_chars = 14
-        for (let i = 0; i < chars.length; i++) {
 
-            let all_distinct = true;
-
-            // compare all current 14 characters
-            for (let m = 0; m < distinct_chars; m++) {
-                for (let n = m + 1; n < distinct_chars; n++) {
-                    const char0 = chars[i + m];
-                    const char1 = chars[i + n];
-
-                    // console.log("comparing", char0, char1, "loop idx", m, n)
-                    if (char0 === char1) {
-                        all_distinct = false
-                        break;
+                if (is_dir(l)) {
+                    const dir = get_dir(l)
+                    console.log("dir", dir)
+                    if (parent[dir] == null) {
+                        parent[dir] = {}
                     }
                 }
-
-                if (!all_distinct) {
-                    break;
+                else if (is_file(l)) {idx
+                    const [size, file] = get_file(l)
+                    parent[file] = size;
                 }
-            }
-
-            if (all_distinct) {
-                start_of_msg = i + distinct_chars
-                break;
+                else if (is_cd(l)) {
+                    const cd_dir = get_cd_dir(l)
+                    console.log("cd_dir", cd_dir)
+                    console.log("parent when cd", parent)
+                    if (cd_dir === "..") { 
+                        console.log(' directory up ^^^^')
+                        return "cd_up"
+                    }
+                    else {
+                        path.push(cd_dir)
+                        inspect_dir(lines.slice(idx + 2), cd_dir, parent[cd_dir])
+                        // return;
+                    }
+                }
             }
         }
 
 
-        console.log('first_marker', first_marker)  // Part 1, right: 1282
-        console.log('start_of_msg', start_of_msg)  // Part 2, right: 
+        inspect_dir(lines.slice(2), "/", tree)
+        console.log("tree", tree)
+
+
+        const sum_of_sizes = -1;
+        // console.log('all_folders', all_folders)  // Part 1
+
+        console.log('sum_of_sizes', sum_of_sizes)  // Part 1
     }
 }
 
 
 let input_my;
 try {
-    input_my = fs.readFileSync('./puzzle_input.txt', 'utf-8');
+    input_my = fs.readFileSync('./07/puzzle_input.txt', 'utf-8');
 } catch (e) {
     console.error("Could not read file", e.stack)
 }
 
 let input_example;
 try {
-    input_example = fs.readFileSync('./puzzle_input_example.txt', 'utf-8');
+    input_example = fs.readFileSync('./07/puzzle_input_example.txt', 'utf-8');
 } catch (e) {
     console.error("Could not read file", e.stack)
 }
 
 
-run(input_my);
+// run(input_my);
 run(input_example);
-
-
-// Part 2
-// wrong: too low: 739, 727
