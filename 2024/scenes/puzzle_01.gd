@@ -10,7 +10,6 @@ func _ready():
 func _process(delta):
 	pass
 
-var card_count = 0
 
 func process_lines(lines):
 	var sum = 0
