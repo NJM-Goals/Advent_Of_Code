@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://bpmoimgh0vl6i"]
+[gd_scene load_steps=6 format=3 uid="uid://bpmoimgh0vl6i"]
 
 [ext_resource type="Script" path="res://scenes/main_menu.gd" id="1_l7quq"]
 [ext_resource type="Script" path="res://scenes/puzzle_01.gd" id="3_1tp62"]
 [ext_resource type="Script" path="res://scenes/puzzle_02.gd" id="3_u5i0v"]
 [ext_resource type="Script" path="res://scenes/puzzle_03.gd" id="4_gpyig"]
+[ext_resource type="Script" path="res://scenes/puzzle_04.gd" id="5_6oajl"]
 
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("1_l7quq")
@@ -21,3 +22,6 @@ script = ExtResource("3_u5i0v")
 
 [node name="Puzzle_03" type="Node" parent="."]
 script = ExtResource("4_gpyig")
+
+[node name="Puzzle_04" type="Node" parent="."]
+script = ExtResource("5_6oajl")
