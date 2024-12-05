@@ -245,8 +245,110 @@ func process_lines(lines):
 	# Wrong 2535 too high.
 	print("Part 1 all_xmas: ", all_xmas)
 
-	# Part 2 - Right answer: 
-	print("Part 2 : ")
+
+func process_lines_part_2(lines):
+	var cols = lines[0].length()
+	print("cols: ", cols)
+	var rows = lines.size() - 1  # subtract last empty line
+	print("rows: ", rows)
+	
+	# Part 2 considerations
+	# Use a 3x3 frame and move it on the input
+	# Check this frame against possible X-MAS combinations
+	
+	var patterns = create_all_XMAS()
+	#print("patterns", patterns)
+	
+	var arr = append_lines_to_1_dim_array(lines)
+	var frames = get_all_frames(arr, cols, rows)
+	#print("frames: ", frames.size(), " ", frames)
+	
+	var amount_xmas = count_xmasses(frames, patterns)
+	
+	# Part 2 - correct: 1866
+	print("Part 2 amount_xmas: ", amount_xmas)
+
+
+func create_all_XMAS():
+	var xmasses = [
+		"M.M" +
+		".A." +
+		"S.S",
+		
+		"M.S" +
+		".A." +
+		"M.S",
+		
+		"S.M" +
+		".A." +
+		"S.M",
+		
+		"S.S" +
+		".A." +
+		"M.M"
+	]
+	
+	return xmasses
+
+
+func count_xmasses(frames, patterns):
+	var count = 0
+	for frame in frames:
+		for pattern in patterns:
+			var is_xmas = compare_pattern_to_frame(pattern, frame)
+			if is_xmas:
+				count += 1
+	
+	return count
+
+
+func compare_pattern_to_frame(pattern, frame):
+	# indices that must be equal
+	var indices = [0, 2, 4, 6, 8]
+	for i in indices:
+		var p =  pattern[i]
+		var f = frame[i]
+		if p != f:
+			return false
+	return true
+
+
+func get_all_frames(arr, cols, rows):
+	var frame_size = 2
+	var max_cols = cols - frame_size
+	var max_rows = rows - frame_size
+	var frames = []
+	for row in range(max_rows):
+		for col in range(max_cols):
+			var idx = col + row * cols
+			var frame = get_frame_at_pos(arr, idx, cols)
+			frames.push_back(frame)
+	return frames
+
+
+func get_frame_at_pos(arr, idx, cols):
+	var indices = [
+		idx, idx + 1, idx + 2,
+		idx + cols, idx + cols + 1, idx + cols + 2,
+		idx + 2 * cols, idx + 2 * cols + 1, idx + 2 * cols + 2,
+	]
+	
+	var frame = []
+	for i in indices:
+		frame.push_back(arr[i])
+	
+	return frame
+
+
+func append_lines_to_1_dim_array(lines):
+	var arr = []
+	for line in lines:
+		if line.length() == 0:
+			continue
+		
+		for char in line:
+			arr.push_back(char)
+	return arr
 
 
 func run_puzzle():
@@ -256,7 +358,7 @@ func run_puzzle():
 	var a = "res://puzzle_input/puzzle_input_04.txt"
 	var b = "res://puzzle_input/puzzle_input_04_example.txt"
 	var c = "res://puzzle_input/puzzle_input_04_example_2.txt"
-	var paths = [b, c, a]
+	var paths = [c, b, a]
 	#var paths = [b, c]
 	
 	for path in paths:
@@ -265,4 +367,6 @@ func run_puzzle():
 	
 		var lines = content.split('\n')
 	
-		process_lines(lines)
+		#process_lines(lines)
+		
+		process_lines_part_2(lines)
