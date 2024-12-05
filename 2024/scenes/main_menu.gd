@@ -7,7 +7,7 @@ extends Node2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print("Main menu ready.")
+	print("Advent of Code")
 	
 	#puzzle_01.run_puzzle()
 	#puzzle_02.run_puzzle()
