@@ -27,23 +27,19 @@ func extract_numbers(mul):
 
 func process_lines(lines):
 	
-	# use a regex to find mul(x,y)
+	# Part 1 use a regex to find mul(x,y)
 	var mul_regex = RegEx.new()
 	mul_regex.compile(r'(mul\([0-9]*,[0-9]*\))')
 	# regex with negative look behind to exclude do_not_mul <-- not needed, because it is not part of the task
 	#mul_regex.compile(r'((?<!do_not_)mul\([0-9]*,[0-9]*\))')
 	
-	# Part 2 do regex
-	var do_regex = RegEx.new()
-	do_regex.compile(r'(do\(\))')
-	
-	# Part 2 don't regex
-	var dont_regex = RegEx.new()
-	dont_regex.compile(r'(don\'t\(\))')
+	# Part 2 regex to find do(), don't() and mul(x,y)
+	var part_2_regex = RegEx.new()
+	part_2_regex.compile(r'(do\(\))|(don\'t\(\))|(mul\([0-9]*,[0-9]*\))')
 	
 	var sum_of_mul = 0
 
-	var all_arr = []
+	var part_2_findings = []
 
 	for line in lines:
 		#print(line)
@@ -57,10 +53,7 @@ func process_lines(lines):
 		# Part 1
 		for match in matches:
 			var mul_str = match.get_string()
-			var mul_idx = match.get_start()
-			#print("mul_str ", mul_str, ", index ", mul_idx)
-			
-			#matches.push
+			#print("mul_str ", mul_str)
 			
 			# Extract the 2 numbers
 			var numbers = extract_numbers(mul_str)
@@ -71,60 +64,36 @@ func process_lines(lines):
 
 
 		# Part 2
-		var do_matches = do_regex.search_all(line)
-		var dont_matches = dont_regex.search_all(line)
-		
-		# combine all matches on base of their index
-		var all = {}
-		
-		for match in matches:
-			var str = match.get_string()
-			var idx = match.get_start()
-			all[idx] = str
-		
-		for match in do_matches:
-			var str = match.get_string()
-			var idx = match.get_start()
-			all[idx] = str
-		
-		for match in dont_matches:
-			var str = match.get_string()
-			var idx = match.get_start()
-			all[idx] = str
+		var part_2_matches = part_2_regex.search_all(line)
 
-		#print("all: ", all)
-		
-		for i in range(0, line.length()):
-			if all.has(i):
-				var item = all[i]
-				if item.begins_with("mul"):
-					all_arr.push_back(all[i])
-				elif item.begins_with("do("):
-					all_arr.push_back(1)
-				elif item.begins_with("don"):
-					all_arr.push_back(0)
+		#print("part_2_matches: ")
+		for match in part_2_matches:
+			var str = match.get_string()
+			part_2_findings.push_back(str)
+			#print("  ", str)
 
 
-	print("all_arr: ", all_arr)
+	# Part 2 - evaluation of findings
+	var sum_of_mul_2 = 0
+	print("part_2_findings: ", part_2_findings)
 	
-	var is_dont = false
-	for item in all_arr:
-		if item == 0:
-			is_dont = true
-		elif item == 1:
-			is_dont = false
+	var is_do = true
+	for item in part_2_findings:
+		if is_do and item.begins_with("mul"):
+			var numbers = extract_numbers(item)
+			var product = numbers[0] * numbers[1]
+			sum_of_mul_2 += product
+		elif item.begins_with("do("):
+			is_do = true
+		elif item.begins_with("don"):
+			is_do = false
 
 
-
-
-
-	# Part 1 - Right answer:
+	# Part 1 - Right answer: 159833790
 	print("Part 1 sum_of_mul: ", sum_of_mul)
 
-	# Part 2 - Right answer: 
-	print("Part 2: ", )
-
-
+	# Part 2 - Right answer: 89349241
+	print("Part 2 sum_of_mul_2: ", sum_of_mul_2)
 
 
 func run_puzzle():
