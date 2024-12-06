@@ -15,8 +15,8 @@ func _ready():
 	#puzzle_02.run_puzzle()
 	#puzzle_03.run_puzzle()
 	#puzzle_04.run_puzzle()
-	puzzle_05.run_puzzle()
-	#puzzle_06.run_puzzle()
+	#puzzle_05.run_puzzle()
+	puzzle_06.run_puzzle()
 	
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
