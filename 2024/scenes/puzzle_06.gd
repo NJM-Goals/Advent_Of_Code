@@ -4,6 +4,9 @@ extends Node
 # the map on which the guard moves
 var map = null
 
+var cols = 0
+var rows = 0
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -118,11 +121,85 @@ func count_chars(lines, char):
 	
 	return count
 
+
+func create_visits():
+	var line = []
+
+
+func create_visit():
+	var visit = {}
+	visit.up = false
+	visit.down = false
+	visit.right = false
+	visit.left = false
+	return visit
+
+
+func create_visit_at(visits, guard, guard_o):
+	# mark every position behind the guard as visited
+	# also cast a ray until an obstacle
+	var x = guard[0]
+	var y = guard[1]
+	if !visits.has(x):
+		visits[x] = {}
+	if !visits[x].has(y):
+		visits[x][y] = create_visit()
+
+	if guard_o == "up":
+		visits[x][y].up = true
+	elif guard_o == "down":
+		visits[x][y].down = true
+	elif guard_o == "right":
+		visits[x][y].right = true
+	elif guard_o == "left":
+		visits[x][y].left = true
+
+
+# casts a ray from the guards position in the opposite direction of the
+# guard's orientation until an obstacle.
+# As if he would look behind him until he sees an obstacle.
+func cast_ray(visits, guard, guard_o):
+	var pos = guard.duplicate()
+	while !is_obstacle(pos, guard_o) && !is_out(pos, cols, rows):
+		if guard_o == "up":
+			pos = move("down", pos)
+		elif guard_o == "down":
+			pos = move("up", pos)
+		elif guard_o == "right":
+			pos = move("left", pos)
+		elif guard_o == "left":
+			pos = move("right", pos)
+		
+		create_visit_at(visits, guard, guard_o)
+
+func is_ray(visits, guard, guard_o):
+	var x = guard[0]
+	var y = guard[1]
+	
+	if visits.has(x) and visits[x].has(y):
+		var is_visited_in_o = null  # visit orientation
+		if guard_o == "up":
+			is_visited_in_o = visits[x][y].up
+		elif guard_o == "down":
+			is_visited_in_o = visits[x][y].down
+		elif guard_o == "right":
+			is_visited_in_o = visits[x][y].right
+		elif guard_o == "left":
+			is_visited_in_o = visits[x][y].left
+			
+		if typeof(is_visited_in_o) != TYPE_BOOL:
+			print("ERROR: Incorrect type in is_ray")
+			
+		return is_visited_in_o
+		
+	return false
+
+
 func process_lines(lines):
 	
-	var cols = lines[0].length()
+	cols = lines[0].length()
 	print("cols: ", cols)
-	var rows = lines.size() - 1  # subtract last empty line
+	rows = lines.size() - 1  # subtract last empty line
 	print("rows: ", rows)
 
 	var arr = lines_to_arr(lines)
@@ -133,8 +210,15 @@ func process_lines(lines):
 	var guard_o = "up"  # guard orientation
 	map = lines
 	var walk = copy_lines(lines)
+	var visits = {}  # Part 2
+	var possible_obstacle_count = 0
 	while !is_out(guard, cols, rows):
 		mark(walk, guard)
+		cast_ray(visits, guard, guard_o)
+		
+		if is_ray(visits, guard, guard_o):
+			# found possible obstacle location
+			possible_obstacle_count += 1
 		
 		if is_obstacle(guard, guard_o):
 			guard_o = rotate(guard_o)
@@ -150,8 +234,7 @@ func process_lines(lines):
 	print("Part 1 marks: ", marks)
 	
 	# Part 2 - Right answer: 
-	print("Part 2 : ", )
-
+	print("Part 2 possible_obstacle_count: ", possible_obstacle_count)
 
 
 func run_puzzle():
@@ -160,8 +243,8 @@ func run_puzzle():
 	var puzzles = []
 	var a = "res://puzzle_input/puzzle_input_06.txt"
 	var b = "res://puzzle_input/puzzle_input_06_example.txt"
-	var paths = [b, a]
-	#var paths = [b]
+	#var paths = [b, a]
+	var paths = [b]
 	
 	for path in paths:
 		var puzzle = FileAccess.open(path, FileAccess.READ)
