@@ -3,13 +3,13 @@ Advent of Code
 
 	[About][Events][Shop][Settings][Log Out]
 
-NJM-Goals 8*
-   <y>2024</y>
+NJM-Goals 9*
+   0xffff&2024
 
 	[Calendar][AoC++][Sponsors][Leaderboard][Stats]
 
 Our sponsors help make Advent of Code possible:
-Ahrefs - We crawl the internet, all of it. Then we parse, store, index and query, all of it. And that's how we build web analytics and a search engine. What else could we do with 400 billion htmls? :thinking_face: BTW we use OCaml
+Jane Street - We're a research-driven trading firm where curious people work together to solve the puzzle of global markets. Will our next great idea come from you? Our largest offices are in NYC, London, Hong Kong, and Singapore.
 --- Day 5: Print Queue ---
 
 Satisfied with their search on Ceres, the squadron of scholars suggests subsequently scanning the stationery stacks of sub-basement 17.
@@ -89,8 +89,25 @@ Of course, you'll need to be careful: the actual list of page ordering rules is 
 
 Determine which updates are already in the correct order. What do you get if you add up the middle page number from those correctly-ordered updates?
 
-To begin, get your puzzle input.
+Your puzzle answer was 5762.
+
+The first half of this puzzle is complete! It provides one gold star: *
+--- Part Two ---
+
+While the Elves get to work printing the correctly-ordered updates, you have a little time to fix the rest of them.
+
+For each of the incorrectly-ordered updates, use the page ordering rules to put the page numbers in the right order. For the above example, here are the three incorrectly-ordered updates and their correct orderings:
+
+	75,97,47,61,53 becomes 97,75,47,61,53.
+	61,13,29 becomes 61,29,13.
+	97,13,75,29,47 becomes 97,75,47,29,13.
+
+After taking only the incorrectly-ordered updates and ordering them correctly, their middle page numbers are 47, 29, and 47. Adding these together produces 123.
+
+Find the updates which are not in the correct order. What do you get if you add up the middle page numbers after correctly ordering just those updates?
 
 Answer:
+
+Although it hasn't changed, you can still get your puzzle input.
 
 You can also [Shareon Bluesky Twitter Mastodon] this puzzle.

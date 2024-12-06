@@ -1,6 +1,7 @@
 
 extends Node
 
+var curr_rules = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -151,7 +152,8 @@ func process_lines(lines):
 	var rules = extract_rules(rule_lines)
 	var updates = extract_updates(update_lines)
 	
-	var correct_updates = []
+	var correct_updates = []  # Part 1
+	var wrong_updates = []    # Part 2
 	for update in updates:
 		var i = 0
 		var is_correct = true
@@ -166,24 +168,64 @@ func process_lines(lines):
 			
 		if is_correct:
 			correct_updates.push_back(update)
+		else:
+			wrong_updates.push_back(update)
 	
-	print("updates: \t\t\t", updates.size(), " ", updates)
-	print("correct_updates: \t", correct_updates.size(), " ", correct_updates)
+	#print("updates: \t\t\t", updates.size(), " ", updates)
+	#print("correct_updates: \t", correct_updates.size(), " ", correct_updates)
 	
+	# Part 1
 	var sum_middles = calc_sum_middles(correct_updates)
+	
+	# Part 2
+	var fixed_updates = fix_updates(wrong_updates, rules)
+	var sum_middles_2 = calc_sum_middles(fixed_updates)
 
 	# Part 1 - Right answer: 5762
 	print("Part 1 sum_middles: ", sum_middles)
+	
+	# Part 2 - Right answer: 4130
+	print("Part 2 sum_middles_2: ", sum_middles_2)
 
+
+func fix_updates(updates, rules):
+	var fixed = []
+	for update in updates:
+		var fixed_up = fix_update(update, rules)
+		fixed.push_back(fixed_up)
+	return fixed
+
+
+func fix_update(update, rules):
+	curr_rules = rules
+	var arr = Array(update)
+	arr.sort_custom(sort_update)
+	return arr
+
+func sort_update(a, b):
+	var rules = curr_rules
+	
+	# find a rule, that contains both elements
+	var found_rule = find_rule(rules, a, b)
+	if found_rule == null:
+		return true
+	
+	return a == found_rule.left
+
+
+func find_rule(rules, a, b):
+	for rule in rules:
+		if rule.left == a and rule.right == b:
+			return rule
+		if rule.right == a and rule.left == b:
+			return rule
+	return null
 
 func calc_sum_middles(arr):
 	var sum = 0
 	for nrs in arr:
 		var size = nrs.size()
-		#var is_odd = (size % 2) != 0
 		var middle_idx = size / 2
-		#if !is_odd:
-			#middle_idx += 1
 		var middle_nr = int(nrs[middle_idx])
 		print("middle_nr: ", middle_nr)
 		sum += middle_nr
