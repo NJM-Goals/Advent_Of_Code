@@ -51,6 +51,14 @@ func int_to_binary_string(num):
 	return binary_str
 
 
+func int_to_tertiary_string(num):
+	var tertiary_str = ""
+	while num > 0:
+		tertiary_str = str(int(num) % 3) + tertiary_str
+		num = int(num / 3)
+	return tertiary_str
+
+
 func calc_bin_combis(nr_combi, nr_operators):
 	var combis = []
 	for i in range(nr_combi):
@@ -63,16 +71,39 @@ func calc_bin_combis(nr_combi, nr_operators):
 	return combis
 
 
+func calc_ter_combis(nr_combi, nr_operators):
+	var combis = []
+	for i in range(nr_combi):
+		var str = int_to_tertiary_string(i)
+		var amount_chars = nr_operators
+		str = str.lpad(amount_chars, "0")
+		combis.push_back(str)
+	
+	#print("combis: ", combis)
+	return combis
+
 func calc(combi_str, operands):
 	var calced = int(operands[0])
+	#for idx in range(1, combi_str.length()):
 	var idx = 1
-	for binary in combi_str:
+	#var calced = 0
+	for op_indicator in combi_str:
 		var num = int(operands[idx])
-		if binary == "0":  # add
+		if op_indicator == "2":  # "||" is concatenation (Part 2)
+			calced = str(calced) + str(num)
+			calced = int(calced)
+			#idx += 1
+			#op_indicator = combi_str[idx]
+			#num = int(operands[idx])
+		
+		if idx > combi_str.length():
+			break
+		
+		if op_indicator == "0":  # add
 			calced += num
-		if binary == "1":  # mul
+		elif op_indicator == "1":  # mul
 			calced *= num
-
+		
 		idx += 1
 	
 	return calced
@@ -85,16 +116,24 @@ func calc_line(operands):
 	var nr_combi = pow(nr_operations, nr_operators)
 	
 	var combis_str = calc_bin_combis(nr_combi, nr_operators)
-	# with three operands:
+	var nr_combi_ter = pow(nr_operations + 1, nr_operators)
+	var combis_str_ter = calc_ter_combis(nr_combi_ter, nr_operators)
+	#print("combis_str_ter: ", combis_str_ter)
+	# with three operands and two operations:
 	# add add
 	# add mul
 	# mul add
-	var line_results = []
-	for combi_str in combis_str:
+	#var line_results = []
+	#for combi_str in combis_str:
+		#var calced = calc(combi_str, operands)
+		#line_results.push_back(calced)
+		
+	var line_results_concat = []
+	for combi_str in combis_str_ter:
 		var calced = calc(combi_str, operands)
-		line_results.push_back(calced)
+		line_results_concat.push_back(calced)
 	
-	return line_results
+	return line_results_concat
 
 
 func calc_lines(operands):
@@ -125,7 +164,9 @@ func sum_of_arr(arr):
 	return sum
 
 
-func create_concats(operands):
+
+# wrong, because it treats the "||" with precedence
+func create_concats_wrong(operands):
 	var concats = []
 	var concats_by_line = {}
 	var line_idx = 0
@@ -198,22 +239,27 @@ func process_lines(lines):
 	
 	
 	# Part 2: Third operator "||" concatenates two numbers
-	var res = create_concats(operands)
-	var operands_with_concats = res[0]
-	var concats_by_line = res[1]
-	print("operands_with_concats: ", operands_with_concats)
-	print("concats_by_line: ", concats_by_line)
-	var calced_concats = calc_lines(operands_with_concats)
-	print("calced_concats: ", calced_concats)
-	
-	var sum_of_concats = check_concats(results, concats_by_line)
-	print("sum_of_concats: ", sum_of_concats)
+	#	7290: 6 8 6 15 can be made true using 6 * 8 || 6 * 15.
+	#	6 * 8 || 6 * 15
+	#	6 * 8 = 48
+	#	48 || 6 = 486
+	#	486 * 15 = 7290
+	#var res = create_concats_wrong(operands)
+	#var operands_with_concats = res[0]
+	#var concats_by_line = res[1]
+	#print("operands_with_concats: ", operands_with_concats)
+	#print("concats_by_line: ", concats_by_line)
+	#var calced_concats = calc_lines(operands_with_concats)
+	#print("calced_concats: ", calced_concats)
+	#
+	#var sum_of_concats = check_concats(results, concats_by_line)
+	#print("sum_of_concats: ", sum_of_concats)
 
 
 	# Part 1 - Right answer: 538191549061
 	print("Part 1 sum: ", sum)
 	
-	# Part 2 - Right answer: 
+	# Part 2 - Right answer: 34612812972206
 	print("Part 2 : ", )
 
 
@@ -226,8 +272,8 @@ func run_puzzle(utils_in):
 	var puzzles = []
 	var a = "res://puzzle_input/puzzle_input_07.txt"
 	var b = "res://puzzle_input/puzzle_input_07_example.txt"
-	#var paths = [b, a]
-	var paths = [b]
+	var paths = [b, a]
+	#var paths = [b]
 	#var paths = [a]
 	
 	var debug_path = "res://puzzle_input/puzzle_output_07.txt"
