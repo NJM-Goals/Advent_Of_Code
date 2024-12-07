@@ -1,11 +1,13 @@
 extends Node2D
 
+@onready var utils = $utils
 @onready var puzzle_01 = $Puzzle_01
 @onready var puzzle_02 = $Puzzle_02
 @onready var puzzle_03 = $Puzzle_03
 @onready var puzzle_04 = $Puzzle_04
 @onready var puzzle_05 = $Puzzle_05
 @onready var puzzle_06 = $Puzzle_06
+@onready var puzzle_07 = $Puzzle_07
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -16,7 +18,8 @@ func _ready():
 	#puzzle_03.run_puzzle()
 	#puzzle_04.run_puzzle()
 	#puzzle_05.run_puzzle()
-	puzzle_06.run_puzzle()
+	#puzzle_06.run_puzzle()
+	puzzle_07.run_puzzle(utils)
 	
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.

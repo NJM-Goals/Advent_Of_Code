@@ -1,12 +1,14 @@
-[gd_scene load_steps=8 format=3 uid="uid://bpmoimgh0vl6i"]
+[gd_scene load_steps=10 format=3 uid="uid://bpmoimgh0vl6i"]
 
 [ext_resource type="Script" path="res://scenes/main_menu.gd" id="1_l7quq"]
+[ext_resource type="Script" path="res://scenes/utils.gd" id="2_mxgav"]
 [ext_resource type="Script" path="res://scenes/puzzle_01.gd" id="3_1tp62"]
 [ext_resource type="Script" path="res://scenes/puzzle_02.gd" id="3_u5i0v"]
 [ext_resource type="Script" path="res://scenes/puzzle_03.gd" id="4_gpyig"]
 [ext_resource type="Script" path="res://scenes/puzzle_04.gd" id="5_6oajl"]
 [ext_resource type="Script" path="res://scenes/puzzle_05.gd" id="6_y53mb"]
 [ext_resource type="Script" path="res://scenes/puzzle_06.gd" id="7_osfer"]
+[ext_resource type="Script" path="res://scenes/puzzle_07.gd" id="9_7ab0s"]
 
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("1_l7quq")
@@ -15,6 +17,9 @@ script = ExtResource("1_l7quq")
 offset_right = 439.0
 offset_bottom = 159.0
 text = "Puzzle 01"
+
+[node name="utils" type="Node" parent="."]
+script = ExtResource("2_mxgav")
 
 [node name="Puzzle_01" type="Node" parent="."]
 script = ExtResource("3_1tp62")
@@ -33,3 +38,6 @@ script = ExtResource("6_y53mb")
 
 [node name="Puzzle_06" type="Node" parent="."]
 script = ExtResource("7_osfer")
+
+[node name="Puzzle_07" type="Node" parent="."]
+script = ExtResource("9_7ab0s")
