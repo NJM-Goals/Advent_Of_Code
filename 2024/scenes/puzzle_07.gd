@@ -82,11 +82,10 @@ func calc_ter_combis(nr_combi, nr_operators):
 	#print("combis: ", combis)
 	return combis
 
+
 func calc(combi_str, operands):
 	var calced = int(operands[0])
-	#for idx in range(1, combi_str.length()):
 	var idx = 1
-	#var calced = 0
 	for op_indicator in combi_str:
 		var num = int(operands[idx])
 		if op_indicator == "2":  # "||" is concatenation (Part 2)
@@ -108,17 +107,25 @@ func calc(combi_str, operands):
 	
 	return calced
 
+
 func calc_line(operands):
 	if operands.size() == 1:
 		return [operands[0]]
 
 	var nr_operators = operands.size() - 1
-	var nr_combi = pow(nr_operations, nr_operators)
 	
+	# Part 1 combination string
+	var nr_combi = pow(nr_operations, nr_operators)
 	var combis_str = calc_bin_combis(nr_combi, nr_operators)
+	#print("combis_str: ", combis_str)
+	
+	# Part 2 combination string
 	var nr_combi_ter = pow(nr_operations + 1, nr_operators)
 	var combis_str_ter = calc_ter_combis(nr_combi_ter, nr_operators)
 	#print("combis_str_ter: ", combis_str_ter)
+	
+	
+	# Part 1:
 	# with three operands and two operations:
 	# add add
 	# add mul
@@ -127,7 +134,10 @@ func calc_line(operands):
 	#for combi_str in combis_str:
 		#var calced = calc(combi_str, operands)
 		#line_results.push_back(calced)
-		
+	#return line_results
+	
+	
+	# Part 2:
 	var line_results_concat = []
 	for combi_str in combis_str_ter:
 		var calced = calc(combi_str, operands)
@@ -164,37 +174,11 @@ func sum_of_arr(arr):
 	return sum
 
 
-
-# wrong, because it treats the "||" with precedence
-func create_concats_wrong(operands):
-	var concats = []
-	var concats_by_line = {}
-	var line_idx = 0
-	for ops in operands:
-		var nr_concats = ops.size() - 1
-		var new_ops = []
-		for conc_pos in range(nr_concats):
-			var conc_line = []
-			for before_conc in range(conc_pos):
-				conc_line.push_back(int(ops[before_conc]))
-			var conc = int(str(ops[conc_pos]) + str(ops[conc_pos + 1]))
-			conc_line.push_back(conc)
-			for after_conc in range(conc_pos + 2, ops.size()):
-				conc_line.push_back(int(ops[after_conc]))
-			new_ops.push_back(conc_line)
-			concats.push_back(conc_line)
-		concats_by_line[line_idx] = new_ops
-		line_idx += 1
-		#print("new_ops", new_ops)
-	return [concats, concats_by_line]
-
-
 func check_concats(results, concats_by_line):
 	var sum = 0
 	var calcs = {}
 	for line_idx in range(results.size()):
 		var concs_line = concats_by_line[line_idx]
-		#for operands in concs_line:
 		var calced = []
 		calced = calc_lines(concs_line)
 		calcs[line_idx] = calced
@@ -244,23 +228,11 @@ func process_lines(lines):
 	#	6 * 8 = 48
 	#	48 || 6 = 486
 	#	486 * 15 = 7290
-	#var res = create_concats_wrong(operands)
-	#var operands_with_concats = res[0]
-	#var concats_by_line = res[1]
-	#print("operands_with_concats: ", operands_with_concats)
-	#print("concats_by_line: ", concats_by_line)
-	#var calced_concats = calc_lines(operands_with_concats)
-	#print("calced_concats: ", calced_concats)
-	#
-	#var sum_of_concats = check_concats(results, concats_by_line)
-	#print("sum_of_concats: ", sum_of_concats)
 
 
 	# Part 1 - Right answer: 538191549061
-	print("Part 1 sum: ", sum)
-	
 	# Part 2 - Right answer: 34612812972206
-	print("Part 2 : ", )
+	print("sum: ", sum)
 
 
 func run_puzzle(utils_in):
