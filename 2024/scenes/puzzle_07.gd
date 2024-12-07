@@ -78,6 +78,9 @@ func calc(combi_str, operands):
 	return calced
 
 func calc_line(operands):
+	if operands.size() == 1:
+		return [operands[0]]
+
 	var nr_operators = operands.size() - 1
 	var nr_combi = pow(nr_operations, nr_operators)
 	
@@ -122,6 +125,53 @@ func sum_of_arr(arr):
 	return sum
 
 
+func create_concats(operands):
+	var concats = []
+	var concats_by_line = {}
+	var line_idx = 0
+	for ops in operands:
+		var nr_concats = ops.size() - 1
+		var new_ops = []
+		for conc_pos in range(nr_concats):
+			var conc_line = []
+			for before_conc in range(conc_pos):
+				conc_line.push_back(int(ops[before_conc]))
+			var conc = int(str(ops[conc_pos]) + str(ops[conc_pos + 1]))
+			conc_line.push_back(conc)
+			for after_conc in range(conc_pos + 2, ops.size()):
+				conc_line.push_back(int(ops[after_conc]))
+			new_ops.push_back(conc_line)
+			concats.push_back(conc_line)
+		concats_by_line[line_idx] = new_ops
+		line_idx += 1
+		#print("new_ops", new_ops)
+	return [concats, concats_by_line]
+
+
+func check_concats(results, concats_by_line):
+	var sum = 0
+	var calcs = {}
+	for line_idx in range(results.size()):
+		var concs_line = concats_by_line[line_idx]
+		#for operands in concs_line:
+		var calced = []
+		calced = calc_lines(concs_line)
+		calcs[line_idx] = calced
+		
+		# check against res
+		var equals = false
+		var res = results[line_idx]
+		for cal in calced:
+			for calc in cal:
+				if calc == res:
+					equals = true
+					break
+			if equals:
+				break
+		if equals:
+			sum += res
+	return sum
+
 func process_lines(lines):
 	lines_global = lines
 	cols = lines[0].length()
@@ -145,6 +195,19 @@ func process_lines(lines):
 	var correct_results = check_calced(results, calced)
 	#print("correct_results: ", correct_results)
 	var sum = sum_of_arr(correct_results)
+	
+	
+	# Part 2: Third operator "||" concatenates two numbers
+	var res = create_concats(operands)
+	var operands_with_concats = res[0]
+	var concats_by_line = res[1]
+	print("operands_with_concats: ", operands_with_concats)
+	print("concats_by_line: ", concats_by_line)
+	var calced_concats = calc_lines(operands_with_concats)
+	print("calced_concats: ", calced_concats)
+	
+	var sum_of_concats = check_concats(results, concats_by_line)
+	print("sum_of_concats: ", sum_of_concats)
 
 
 	# Part 1 - Right answer: 538191549061
@@ -163,8 +226,8 @@ func run_puzzle(utils_in):
 	var puzzles = []
 	var a = "res://puzzle_input/puzzle_input_07.txt"
 	var b = "res://puzzle_input/puzzle_input_07_example.txt"
-	var paths = [b, a]
-	#var paths = [b]
+	#var paths = [b, a]
+	var paths = [b]
 	#var paths = [a]
 	
 	var debug_path = "res://puzzle_input/puzzle_output_07.txt"
