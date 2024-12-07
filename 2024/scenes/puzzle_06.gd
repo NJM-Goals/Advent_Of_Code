@@ -1,11 +1,15 @@
 
 extends Node
 
+var lines_global = null
+
 # the map on which the guard moves
 var map = null
 
 var cols = 0
 var rows = 0
+
+var debug_file : FileAccess = null
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -110,8 +114,9 @@ func copy_lines(lines):
 	
 	return copy
 
-func mark(lines, pos):
-	lines[pos[1]][pos[0]] = "X"
+
+func mark(lines, pos, char):
+	lines[pos[1]][pos[0]] = char
 
 
 func count_chars(lines, char):
@@ -160,17 +165,54 @@ func create_visit_at(visits, guard, guard_o):
 # As if he would look behind him until he sees an obstacle.
 func cast_ray(visits, guard, guard_o):
 	var pos = guard.duplicate()
-	while !is_obstacle(pos, guard_o) && !is_out(pos, cols, rows):
+	var char_ray = ""
+	var lines_rayed = copy_lines(lines_global)
+	mark_on_lines(lines_rayed, pos, "g")
+	var ray_o = invert_orientation(guard_o)
+	while !is_obstacle(pos, ray_o) && !is_out(pos, cols, rows):
 		if guard_o == "up":
 			pos = move("down", pos)
+			char_ray = "d"
 		elif guard_o == "down":
 			pos = move("up", pos)
+			char_ray = "u"
 		elif guard_o == "right":
 			pos = move("left", pos)
+			char_ray = "l"
 		elif guard_o == "left":
 			pos = move("right", pos)
+			char_ray = "r"
+			
+		if pos[0] < 0 or pos[0] >= cols:
+			break
+		if pos[1] < 0 or pos[1] >= rows:
+			break
 		
-		create_visit_at(visits, guard, guard_o)
+		create_visit_at(visits, pos, guard_o)
+		
+		mark_on_lines(lines_rayed, pos, char_ray)
+
+	#print_lines("lines_rayed", lines_rayed)
+	#write_debug(lines_rayed)
+
+
+func mark_on_lines(lines, pos, char):
+	var line = lines[pos[1]]
+	line[pos[0]] = char
+	#print("line: ", line)
+	lines[pos[1]] = line
+
+
+func invert_orientation(orientation):
+	if orientation == "up":
+		return "down"
+	elif orientation == "down":
+		return "up"
+	elif orientation == "right":
+		return "left"
+	elif orientation == "left":
+		return "right"
+
 
 func is_ray(visits, guard, guard_o):
 	var x = guard[0]
@@ -179,13 +221,13 @@ func is_ray(visits, guard, guard_o):
 	if visits.has(x) and visits[x].has(y):
 		var is_visited_in_o = null  # visit orientation
 		if guard_o == "up":
-			is_visited_in_o = visits[x][y].up
-		elif guard_o == "down":
-			is_visited_in_o = visits[x][y].down
-		elif guard_o == "right":
 			is_visited_in_o = visits[x][y].right
-		elif guard_o == "left":
+		elif guard_o == "down":
 			is_visited_in_o = visits[x][y].left
+		elif guard_o == "right":
+			is_visited_in_o = visits[x][y].down
+		elif guard_o == "left":
+			is_visited_in_o = visits[x][y].up
 			
 		if typeof(is_visited_in_o) != TYPE_BOOL:
 			print("ERROR: Incorrect type in is_ray")
@@ -195,8 +237,32 @@ func is_ray(visits, guard, guard_o):
 	return false
 
 
-func process_lines(lines):
+func is_infront_guard_start(guard, guard_o, guard_start):
+	var x = guard[0]
+	var y = guard[1]
+	var sx = guard_start[0]
+	var sy = guard_start[1]
+	if guard_o == "up":
+		return x == sx && y - 1 == sy
+	elif guard_o == "down":
+		return x == sx && y + 1 == sy
+	elif guard_o == "right":
+		return x + 1 == sx && y == sy
+	elif guard_o == "left":
+		return x - 1 == sx && y == sy
 	
+	print("ERROR in is_infront_guard_start")
+
+
+func put_obstacle(lines, guard, guard_o):
+	var mark_pos = move(guard_o, guard)
+	mark_on_lines(lines, mark_pos, "O")
+	#print(lines)
+	
+
+
+func process_lines(lines):
+	lines_global = lines
 	cols = lines[0].length()
 	print("cols: ", cols)
 	rows = lines.size() - 1  # subtract last empty line
@@ -206,26 +272,61 @@ func process_lines(lines):
 	var guard_start = find_item(lines, '^')
 	print("guard_start: ", guard_start)
 	
-	var guard = guard_start
+	var guard = guard_start.duplicate()
 	var guard_o = "up"  # guard orientation
 	map = lines
 	var walk = copy_lines(lines)
+	var obstacles = copy_lines(lines)
 	var visits = {}  # Part 2
 	var possible_obstacle_count = 0
 	while !is_out(guard, cols, rows):
-		mark(walk, guard)
+		mark(walk, guard, 'X')
 		cast_ray(visits, guard, guard_o)
 		
-		if is_ray(visits, guard, guard_o):
+		if !is_infront_guard_start(guard, guard_o, guard_start) and is_ray(visits, guard, guard_o):
 			# found possible obstacle location
 			possible_obstacle_count += 1
+			put_obstacle(obstacles, guard.duplicate(), guard_o)
 		
 		if is_obstacle(guard, guard_o):
 			guard_o = rotate(guard_o)
 		else:
 			guard = move(guard_o, guard)
+			
+	print("Part 2 possible_obstacle_count: ", possible_obstacle_count)
 	
-	print_lines("Walked map", walk)
+	# Run it a second time for Part 2
+	guard = guard_start.duplicate()
+	var loop_safety_count = 0
+	var loop_max = 1000 * 100
+	var visits_2 = visits.duplicate(true)
+	visits = {}  # Part 2
+	walk = copy_lines(lines)
+	obstacles = copy_lines(lines)
+	possible_obstacle_count = 0
+	guard_o = "up"
+	while !is_out(guard, cols, rows):
+		mark(walk, guard, 'X')
+		#cast_ray(visits, guard, guard_o)
+		
+		write_debug(walk, guard)
+		
+		if !is_infront_guard_start(guard, guard_o, guard_start) and is_ray(visits_2, guard, guard_o):
+			# found possible obstacle location
+			possible_obstacle_count += 1
+			put_obstacle(obstacles, guard.duplicate(), guard_o)
+		
+		if is_obstacle(guard, guard_o):
+			guard_o = rotate(guard_o)
+		else:
+			guard = move(guard_o, guard)
+		
+		loop_safety_count += 1
+		if loop_safety_count > loop_max:
+			break
+	
+	#print_lines("Walked map", walk)
+	#print_lines("Obstacles", obstacles)
 	
 	var marks = count_chars(walk, 'X')
 
@@ -234,6 +335,9 @@ func process_lines(lines):
 	print("Part 1 marks: ", marks)
 	
 	# Part 2 - Right answer: 
+	# Wrong: 406 too low.
+	# Wrong: 427 too low.
+	# Wrong: 908 too low.
 	print("Part 2 possible_obstacle_count: ", possible_obstacle_count)
 
 
@@ -243,8 +347,12 @@ func run_puzzle():
 	var puzzles = []
 	var a = "res://puzzle_input/puzzle_input_06.txt"
 	var b = "res://puzzle_input/puzzle_input_06_example.txt"
-	#var paths = [b, a]
-	var paths = [b]
+	var paths = [b, a]
+	#var paths = [b]
+	#var paths = [a]
+	
+	var debug_path = "res://puzzle_input/puzzle_output_06.txt"
+	debug_file = FileAccess.open(debug_path, FileAccess.WRITE)
 	
 	for path in paths:
 		var puzzle = FileAccess.open(path, FileAccess.READ)
@@ -253,5 +361,10 @@ func run_puzzle():
 		var lines = content.split('\n')
 	
 		process_lines(lines)
-		
-		#process_lines_part_2(lines)
+	
+
+func write_debug(lines, pos):
+	debug_file.seek(0)  # overwrite content
+	for line in lines:
+		debug_file.store_string(line + '\n')
+	debug_file.store_string('\n' + str(pos[0]) + " " + str(pos[1]))
